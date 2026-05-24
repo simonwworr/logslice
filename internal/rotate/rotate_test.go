@@ -84,3 +84,18 @@ func TestDiscover_BadDir(t *testing.T) {
 		t.Fatal("expected error for nonexistent directory")
 	}
 }
+
+func TestDiscover_PathsAreAbsolute(t *testing.T) {
+	dir := t.TempDir()
+	makeFiles(t, dir, "app.log", "app.log.1")
+
+	files, err := rotate.Discover(filepath.Join(dir, "app.log"))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	for _, f := range files {
+		if !filepath.IsAbs(f.Path) {
+			t.Errorf("expected absolute path, got %q", f.Path)
+		}
+	}
+}
