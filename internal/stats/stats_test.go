@@ -63,6 +63,19 @@ func TestElapsed_BeforeFinish(t *testing.T) {
 	}
 }
 
+func TestElapsed_AfterFinish(t *testing.T) {
+	c := stats.New()
+	time.Sleep(5 * time.Millisecond)
+	c.Finish()
+	elapsed := c.Elapsed()
+	time.Sleep(10 * time.Millisecond)
+
+	// Elapsed should be fixed after Finish and not grow with wall time.
+	if c.Elapsed() != elapsed {
+		t.Errorf("Elapsed changed after Finish: got %v, then %v", elapsed, c.Elapsed())
+	}
+}
+
 func TestWriteTo_ContainsFields(t *testing.T) {
 	c := stats.New()
 	c.RecordLine(512, true, false)
