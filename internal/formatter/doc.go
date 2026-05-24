@@ -12,4 +12,11 @@
 //
 //	f := formatter.New(os.Stdout, formatter.FormatNumbered)
 //	_ = f.WriteLine("2024-01-01T00:00:00Z some event")
+//
+// The zero value of Format is FormatRaw, so callers that do not need
+// a specific format can pass an uninitialized Format value safely.
+//
+// All Write methods are safe for sequential use but are not
+// goroutine-safe; callers that share a Formatter across goroutines
+// must synchronise externally.
 package formatter
