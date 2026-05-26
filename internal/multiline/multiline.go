@@ -46,6 +46,8 @@ func New(opts ...Option) *Joiner {
 
 // Add feeds a raw line to the joiner. If a complete record is ready it is
 // returned together with ok=true. When no record is ready yet, ok is false.
+// Note: callers must invoke Flush after the last line to retrieve any
+// remaining buffered record.
 func (j *Joiner) Add(line string) (record string, ok bool) {
 	if j.pattern == nil {
 		// No grouping configured — pass through immediately.
@@ -86,4 +88,20 @@ func (j *Joiner) Flush() (record string, ok bool) {
 func (j *Joiner) Reset() {
 	j.pending.Reset()
 	j.hasPending = false
+}
+
+// DrainAll feeds all provided lines through the joiner and returns every
+// complete record, including any final buffered record. It is a convenience
+// wrapper around repeated calls to Add followed by Flush.
+func (j *Joiner) DrainAll(lines []string) []string {
+	var records []string
+	for _, line := range lines {
+		if rec, ok := j.Add(line); ok {
+			records = append(records, rec)
+		}
+	}
+	if rec, ok := j.Flush(); ok {
+		records = append(records, rec)
+	}
+	return records
 }
