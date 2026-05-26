@@ -54,6 +54,26 @@ func TestReadLine_NoTrailingNewline(t *testing.T) {
 	}
 }
 
+func TestReadLine_OnlyNewlines(t *testing.T) {
+	// Each newline should produce an empty string line.
+	lr := readerFromString("\n\n\n")
+	defer lr.Close()
+
+	for i := 0; i < 3; i++ {
+		line, ok := lr.ReadLine()
+		if !ok {
+			t.Fatalf("expected line %d, got EOF", i)
+		}
+		if line != "" {
+			t.Errorf("line %d: got %q, want empty string", i, line)
+		}
+	}
+	_, ok := lr.ReadLine()
+	if ok {
+		t.Error("expected EOF after last empty line")
+	}
+}
+
 func TestNewReader_GzipTransparent(t *testing.T) {
 	var buf bytes.Buffer
 	gw := gzip.NewWriter(&buf)
